@@ -16,7 +16,7 @@ class ReplyPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,7 @@ class ReplyPolicy
      */
     public function view(User $user, Reply $reply): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -32,7 +32,7 @@ class ReplyPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -40,7 +40,7 @@ class ReplyPolicy
      */
     public function update(User $user, Reply $reply): bool
     {
-        return false;
+        return $user->id === $reply->user_id;
     }
 
     /**

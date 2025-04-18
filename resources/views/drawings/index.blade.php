@@ -18,6 +18,27 @@
                 </div>
             @endif
 
+            <div class="mb-6 bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-4 bg-white border-b border-gray-200">
+                    <div class="flex items-center">
+                        <span class="mr-3 font-medium">Sort by:</span>
+                        <a href="{{ route('drawings.index', ['sort' => 'latest']) }}" class="mr-4 px-3 py-1 rounded {{ $sort === 'latest' ? 'bg-gray-300' : 'bg-gray-200 hover:bg-gray-300' }}">
+                            Latest
+                        </a>
+                        <a href="{{ route('drawings.index', ['sort' => 'oldest']) }}" class="mr-4 px-3 py-1 rounded {{ $sort === 'oldest' ? 'bg-gray-300' : 'bg-gray-200 hover:bg-gray-300' }}">
+                            Oldest
+                        </a>
+                        <a href="{{ route('drawings.index', ['sort' => 'most_replies']) }}" class="mr-4 px-3 py-1 rounded {{ $sort === 'most_replies' ? 'bg-gray-300' : 'bg-gray-200 hover:bg-gray-300' }}">
+                            Most Replies
+                        </a>
+                        <a href="{{ route('drawings.index', ['sort' => 'least_replies']) }}" class="mr-4 px-3 py-1 rounded {{ $sort === 'least_replies' ? 'bg-gray-300' : 'bg-gray-200 hover:bg-gray-300' }}">
+                            Least Replies
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
             <div class="space-y-6">
                 @forelse ($drawings as $drawing)
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -31,15 +52,23 @@
                                         By {{ $drawing->user->name }} - {{ $drawing->created_at->diffForHumans() }}
                                     </p>
                                 </div>
-                                @can('delete', $drawing)
-                                    <form action="{{ route('drawings.destroy', $drawing) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800" onclick="return confirm('Are you sure you want to delete this drawing?')">
-                                            Delete
-                                        </button>
-                                    </form>
-                                @endcan
+                                <div class="flex items-center space-x-4">
+                            @can('update', $drawing)
+                                <a href="{{ route('drawings.edit', $drawing) }}" class="text-blue-600 hover:text-blue-800">
+                                    Edit
+                                </a>
+                            @endcan
+                            @can('delete', $drawing)
+                                <form action="{{ route('drawings.destroy', $drawing) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-800" onclick="return confirm('Are you sure you want to delete this drawing?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            @endcan
+                        </div>
+
                             </div>
                             <div class="mt-4 border p-2 max-w-lg mx-auto">
                                 {!! $drawing->image_data !!}
@@ -63,7 +92,7 @@
                 @endforelse
 
                 <div class="mt-4">
-                    {{ $drawings->links() }}
+                    {{ $drawings->appends(['sort' => $sort])->links() }}
                 </div>
             </div>
         </div>

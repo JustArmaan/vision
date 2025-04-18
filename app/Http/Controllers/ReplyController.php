@@ -33,6 +33,28 @@ class ReplyController extends Controller
         return redirect()->route('drawings.show', $drawing)->with('success', 'Reply added successfully!');
     }
 
+    public function edit(Reply $reply)
+    {
+        $this->authorize('update', $reply);
+        $drawing = $reply->drawing;
+        return view('replies.edit', compact('reply', 'drawing'));
+    }
+
+    public function update(Request $request, Reply $reply)
+    {
+        $this->authorize('update', $reply);
+
+        $request->validate([
+            'image_data' => 'required|string',
+        ]);
+
+        $reply->update([
+            'image_data' => $request->image_data,
+        ]);
+
+        return redirect()->route('drawings.show', $reply->drawing)->with('success', 'Reply updated successfully!');
+    }
+
     public function destroy(Reply $reply)
     {
         $this->authorize('delete', $reply);

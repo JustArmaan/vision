@@ -10,14 +10,14 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DrawingController::class, 'dashboard'])->name('dashboard');
 
-    Route::resource('drawings', DrawingController::class)->except(['edit', 'update']);
+    Route::resource('drawings', DrawingController::class);
 
     Route::get('/drawings/{drawing}/reply', [ReplyController::class, 'create'])->name('replies.create');
     Route::post('/drawings/{drawing}/reply', [ReplyController::class, 'store'])->name('replies.store');
+    Route::get('/replies/{reply}/edit', [ReplyController::class, 'edit'])->name('replies.edit');
+    Route::put('/replies/{reply}', [ReplyController::class, 'update'])->name('replies.update');
     Route::delete('/replies/{reply}', [ReplyController::class, 'destroy'])->name('replies.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

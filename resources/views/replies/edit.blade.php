@@ -1,25 +1,29 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Create Drawing') }}
+            {{ __('Edit Reply') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-6 bg-white border-b border-gray-200">
+                    <h3 class="text-lg font-semibold mb-4">Original Drawing</h3>
+                    <div class="border p-2 max-w-lg mx-auto">
+                        {!! $drawing->image_data !!}
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <form action="{{ route('drawings.store') }}" method="POST">
+                    <form action="{{ route('replies.update', $reply) }}" method="POST">
                         @csrf
-                        <div class="mb-4">
-                            <x-input-label for="title" :value="__('Title (Optional)')" />
-                            <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="old('title')" />
-                            <x-input-error :messages="$errors->get('title')" class="mt-2" />
-                        </div>
-
+                        @method('PUT')
                         <div class="mb-4">
                             <label for="drawing-canvas" class="block font-medium text-sm text-gray-700">
-                                {{ __('Drawing Canvas') }}
+                                {{ __('Edit Your Reply Drawing') }}
                             </label>
                             <div class="mt-1 border border-gray-300 rounded-md p-2 bg-gray-50">
                                 <div id="drawing-container" class="relative w-full" style="height: 400px;">
@@ -37,16 +41,16 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea id="image_data" name="image_data" hidden></textarea>
+                            <textarea id="image_data" name="image_data" hidden>{{ $reply->image_data }}</textarea>
                             <x-input-error :messages="$errors->get('image_data')" class="mt-2" />
                         </div>
 
                         <div class="flex items-center justify-end mt-4">
-                            <a href="{{ route('drawings.index') }}" class="text-gray-600 hover:text-gray-900 mr-4 ml-4">
+                            <a href="{{ route('drawings.show', $drawing) }}" class="text-gray-600 hover:text-gray-900 mr-4">
                                 {{ __('Cancel') }}
                             </a>
                             <x-primary-button id="submit-drawing">
-                                {{ __('Post Drawing') }}
+                                {{ __('Update Reply') }}
                             </x-primary-button>
                         </div>
                     </form>
@@ -69,8 +73,34 @@
                 const container = document.getElementById('drawing-container');
                 canvas.width = container.clientWidth;
                 canvas.height = container.clientHeight;
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                loadExistingDrawing();
+            }
+
+            function loadExistingDrawing() {
+                const existingData = imageDataInput.value;
+                if (existingData) {
+                    const img = new Image();
+                    const parser = new DOMParser();
+                    const svgDoc = parser.parseFromString(existingData, "image/svg+xml");
+                    const imageElement = svgDoc.querySelector("image");
+
+                    if (imageElement && imageElement.getAttribute("href")) {
+                        img.onload = function() {
+                            ctx.fillStyle = 'white';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        };
+                        img.src = imageElement.getAttribute("href");
+                    } else {
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                } else {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
             }
 
             resizeCanvas();

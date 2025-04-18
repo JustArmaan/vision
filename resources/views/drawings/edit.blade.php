@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Create Drawing') }}
+            {{ __('Edit Drawing') }}
         </h2>
     </x-slot>
 
@@ -9,11 +9,12 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <form action="{{ route('drawings.store') }}" method="POST">
+                    <form action="{{ route('drawings.update', $drawing) }}" method="POST">
                         @csrf
+                        @method('PUT')
                         <div class="mb-4">
                             <x-input-label for="title" :value="__('Title (Optional)')" />
-                            <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="old('title')" />
+                            <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="$drawing->title" />
                             <x-input-error :messages="$errors->get('title')" class="mt-2" />
                         </div>
 
@@ -37,16 +38,16 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea id="image_data" name="image_data" hidden></textarea>
+                            <textarea id="image_data" name="image_data" hidden>{{ $drawing->image_data }}</textarea>
                             <x-input-error :messages="$errors->get('image_data')" class="mt-2" />
                         </div>
 
                         <div class="flex items-center justify-end mt-4">
-                            <a href="{{ route('drawings.index') }}" class="text-gray-600 hover:text-gray-900 mr-4 ml-4">
+                            <a href="{{ route('drawings.show', $drawing) }}" class="text-gray-600 hover:text-gray-900 mr-4 ml-4">
                                 {{ __('Cancel') }}
                             </a>
                             <x-primary-button id="submit-drawing">
-                                {{ __('Post Drawing') }}
+                                {{ __('Update Drawing') }}
                             </x-primary-button>
                         </div>
                     </form>
@@ -69,8 +70,34 @@
                 const container = document.getElementById('drawing-container');
                 canvas.width = container.clientWidth;
                 canvas.height = container.clientHeight;
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                loadExistingDrawing();
+            }
+
+            function loadExistingDrawing() {
+                const existingData = imageDataInput.value;
+                if (existingData) {
+                    const img = new Image();
+                    const parser = new DOMParser();
+                    const svgDoc = parser.parseFromString(existingData, "image/svg+xml");
+                    const imageElement = svgDoc.querySelector("image");
+
+                    if (imageElement && imageElement.getAttribute("href")) {
+                        img.onload = function() {
+                            ctx.fillStyle = 'white';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        };
+                        img.src = imageElement.getAttribute("href");
+                    } else {
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                } else {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
             }
 
             resizeCanvas();

@@ -16,7 +16,7 @@ class DrawingPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,7 @@ class DrawingPolicy
      */
     public function view(User $user, Drawing $drawing): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -32,7 +32,7 @@ class DrawingPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -40,7 +40,7 @@ class DrawingPolicy
      */
     public function update(User $user, Drawing $drawing): bool
     {
-        return false;
+        return $user->id === $drawing->user_id;
     }
 
     /**
